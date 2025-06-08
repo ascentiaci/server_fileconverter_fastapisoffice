@@ -11,7 +11,7 @@ Before starting this guide, you should have:
 
 ## 1. Install required software
 ```
-apt install curl wget vim
+apt install curl wget vim git
 
 apt install python3-pip python3-dev python3-venv
 
@@ -22,7 +22,7 @@ apt install libreoffice
 Check if soffice is in the path and a conversion with a [sample file](https://filesamples.com/formats/docx) works.
 
 ```
-soffice --headless --convert-to pdf sample.docx
+soffice --headless --convert-to pdf sample1.docx
 ```
 
 ## 2. Add a new user
@@ -31,6 +31,7 @@ Create a new non-root user called `fastapi-user` and remove the password.
 ```
 useradd -m fastapi-user
 passwd -d fastapi-user
+usermod --shell /bin/bash fastapi-user
 ```
 Work with the `fastapi-user` account.
 
@@ -45,12 +46,8 @@ git clone https://github.com/miotto/server_fileconverter_fastapisoffice.git
 mv ~/server_fileconverter_fastapisoffice/my_fastapi_project .
 ```
 ## 3. Install Python packages and test the application
-Install some Python packages in the virtual environment. 
-Work with the `fastapi-user` account.
+Install some Python packages in the virtual environment (work with the `fastapi-user` account).
 
-```
-su fastapi-user
-```
 Change to the Project folder, create a Python virtual environment and activate it. 
 
 ```
@@ -58,7 +55,7 @@ cd ~/my_fastapi_project/
 python3 -m venv .venv
 source .venv/bin/activate
 ```
-Install some Python packages
+Install some Python packages in the virtual Pytohn environment.
 
 ```
 pip install fastapi gunicorn uvicorn
@@ -76,10 +73,10 @@ or
 
 gunicorn -w 4 -k uvicorn.workers.UvicornWorker main:app --log-level debug
 ```
-To test, execute the following command from another terminal on the same server. Replace SERVER-IP with the current Server IP address or with `127.0.0.1`.
+To test, execute the following command from another terminal on the same server.
 
 ```
-curl -F 'file=@/home/fastapi-user/sample1.docx' http://SERVER-IP/upload
+curl -F 'file=@/home/fastapi-user/sample1.docx' http://127.0.0.1:8000/upload
 ```
 Output
 
@@ -93,10 +90,12 @@ If everything is ok, the result file is in folder
 ```
 
 ## 4. Create a Gunicorn Script
+Create a Gunicorn Script to start the service automatically.
+
 As `fastapi-user` view the file, adapt it if necessary and make it executable.
 
 ```
-cat ~/my_fastapi_project/gunicorn_start
+vi ~/my_fastapi_project/gunicorn_start
 ```
 
 ```
@@ -131,11 +130,12 @@ Install Supervisor as root user.
 ```
 apt install supervisor
 ```
-View the file and adapt it if necessary.
+Create a supervisor configuration file.
 
 ```
-cat /etc/supervisor/conf.d/my_project.conf
+vi /etc/supervisor/conf.d/my_project.conf
 ```
+Paste the following text into the file and change it if necessary.
 
 ```
 [program:fastapi-app]
@@ -164,7 +164,7 @@ supervisorctl stop fastapi-app
 The basic Nginx settings.
 
 ```
-sudo vi /etc/nginx/nginx.conf
+vi /etc/nginx/nginx.conf
 ```
 
 ```
@@ -198,7 +198,7 @@ http {
 Tell Nginx to listen on the default port 80. Let’s also tell it to use this block for requests for our server’s domain name or IP address. Replace the placeholder SERVER-NAME-OR-IP with the correct value.
 
 ```
-cat /etc/nginx/sites-available/my_fastapi_project
+vi /etc/nginx/sites-available/my_fastapi_project
 ```
 
 ```
@@ -252,7 +252,7 @@ To ensure data protection, a cron job can be created that deletes the converted 
 Create a shell script.
 
 ```
-cat /root/delete_files_fastapi.sh
+vi /root/delete_files_fastapi.sh
 ```
 
 ```
