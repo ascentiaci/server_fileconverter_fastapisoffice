@@ -1,0 +1,7 @@
+.git
+__pycache__
+*.pyc
+*.pyo
+my_fastapi_project/.venv
+my_fastapi_project/logs/
+my_fastapi_project/tmp/

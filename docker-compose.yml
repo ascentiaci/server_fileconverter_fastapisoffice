@@ -1,0 +1,10 @@
+services:
+  fileconverter:
+    build: .
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./tmp:/app/tmp
+    environment:
+      - UPLOADS_DIR=/app/tmp
+    restart: unless-stopped
